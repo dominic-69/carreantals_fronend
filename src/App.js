@@ -17,11 +17,17 @@ import Profile from "./pages/user/Profile";
 import KYC from "./pages/user/KYC";
 import Accessories from "./pages/user/Accessories";
 import Cart from "./pages/user/Cart";
-import Wishlist from "./pages/user/Wishlist";
+ import Wishlist from "./pages/user/Wishlist";
 import SellCar from "./pages/user/SellCar";
 import BuyCars from "./pages/user/BuyCars";
 import BuyCarDetails from "./pages/user/BuyCarDetails";
 import Chatbot from "./pages/user/Chatbot";
+import OrderHistory from "./pages/user/OrderHistory";
+import Checkout from "./pages/user/Checkout";
+import CarCheckout from "./pages/user/CarCheckout";
+import Messages from "./pages/user/Messages";
+ 
+
 
 
 
@@ -81,6 +87,10 @@ function App() {
         <Route path="/sell-car" element={<SellCar />} />
         <Route path="/buy-cars" element={<BuyCars />} />
         <Route path="/chatbot" element={<Chatbot />} />
+        <Route path="/checkout" element={<Checkout />} />
+        <Route path="/car-checkout" element={<CarCheckout />} />
+        <Route path="/messages" element={<Messages />} />
+ 
 
 
 <Route path="/buy-car/:id" element={<BuyCarDetails />} />
@@ -103,6 +113,8 @@ function App() {
     </ProtectedRoute>
   }
 />
+
+<Route path="/orders" element={<OrderHistory />} />
         {/* ADMIN */}
         <Route
           path="/admin"
@@ -242,7 +254,7 @@ function App() {
     </ProtectedRoute>
   }
 />
-
+ 
         {/* FALLBACK */}
         <Route path="*" element={<Navigate to="/" />} />
 

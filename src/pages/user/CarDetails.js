@@ -49,6 +49,7 @@ function CarDetails() {
     }
   };
 
+  // eslint-disable-next-line no-unused-vars
   const handleBooking = async () => {
     if (!startDate || !endDate) {
       alert("Please select your trip dates");
@@ -185,14 +186,20 @@ function CarDetails() {
             </div>
 
             <button 
-              onClick={handleBooking} 
-              style={{
-                width: "100%", padding: "16px", background: "#6366f1", color: "#fff", border: "none",
-                borderRadius: "14px", fontWeight: "700", fontSize: "16px", cursor: "pointer",
-                boxShadow: "0 4px 12px rgba(99, 102, 241, 0.3)", transition: "0.2s"
-              }}
-              onMouseOver={(e) => e.currentTarget.style.opacity = "0.9"}
-              onMouseOut={(e) => e.currentTarget.style.opacity = "1"}
+              onClick={() => {
+  if (!startDate || !endDate) {
+    alert("Please select dates");
+    return;
+  }
+
+  navigate("/car-checkout", {
+    state: {
+      car,
+      startDate: startDate.toISOString().split("T")[0],
+      endDate: endDate.toISOString().split("T")[0],
+    },
+  });
+}}
             >
               Reserve This Car
             </button>

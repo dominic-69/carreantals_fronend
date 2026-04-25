@@ -65,6 +65,9 @@ function Home() {
           <button onClick={() => navigate("/profile")} style={secondaryBtnStyle}>Profile</button>
           <button onClick={() => navigate("/sell-car")} style={secondaryBtnStyle}>Sell Car 🚗</button>
           <button onClick={() => navigate("/buy-cars")} style={secondaryBtnStyle}>Buy Cars 🛒</button>
+          <button onClick={() => navigate("/messages")}>
+  💬 Messages
+</button>
           
           <button onClick={handleLogout} style={{
             padding: "8px 18px",

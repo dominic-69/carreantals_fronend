@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 import React, { useEffect, useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../../services/api";
@@ -6,10 +7,11 @@ function BuyCarDetails() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [car, setCar] = useState(null);
+  const [messageSent, setMessageSent] = useState(false);
 
   useEffect(() => {
     fetchCar();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+    // eslint-disable-next-line
   }, [id]);
 
   const fetchCar = async () => {
@@ -22,108 +24,109 @@ function BuyCarDetails() {
     }
   };
 
+  // 🔥 FIXED CHAT FUNCTION (FINAL VERSION)
+  const handleChat = async () => {
+    try {
+      if (!car) {
+        alert("Car data not loaded ❌");
+        return;
+      }
+
+      const sellerId = car?.seller?.id;
+
+      if (!sellerId) {
+        console.log("CAR:", car);
+        alert("Seller ID not found ❌");
+        return;
+      }
+
+      // 🔥 STEP 1: CREATE OR GET CHAT
+      const res = await API.post("chat/userchat/create/", {
+        user_id: sellerId,
+      });
+
+      const chatId = res.data.chat_id;
+
+      // 🔥 STEP 2: SEND DEFAULT MESSAGE (IMPORTANT FIX)
+      await API.post(`chat/userchat/${chatId}/send/`, {
+        message: "Is this still available?",
+      });
+
+      // 🔥 STEP 3: UPDATE BUTTON UI
+      setMessageSent(true);
+
+      // 🔥 STEP 4: REDIRECT TO CHAT PAGE
+      setTimeout(() => {
+        navigate(`/messages?chat_id=${chatId}`);
+      }, 500);
+
+    } catch (err) {
+      console.error("Error:", err.response?.data || err);
+      alert("Could not start chat ❌");
+    }
+  };
+
   const handleWhatsAppContact = () => {
     if (!car?.whatsapp_number) {
       alert("Seller has not provided a WhatsApp number.");
       return;
     }
-    // Formats the number: removes spaces/plus signs if any
+
     const cleanNumber = car.whatsapp_number.replace(/\D/g, "");
+
     const message = `Hello! I saw your listing for the *${car.title}* (₹${car.price}) on the Car App. Is it still available?`;
-    
-    // Opens WhatsApp Web or App directly
-    window.open(`https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`, "_blank");
+
+    window.open(
+      `https://wa.me/${cleanNumber}?text=${encodeURIComponent(message)}`,
+      "_blank"
+    );
   };
 
-  if (!car) return (
-    <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh", fontFamily: "sans-serif" }}>
-      <div className="loader">Loading Excellence...</div>
-    </div>
-  );
+  if (!car)
+    return (
+      <div style={{ display: "flex", justifyContent: "center", alignItems: "center", height: "80vh" }}>
+        Loading...
+      </div>
+    );
 
   return (
     <div style={pageWrapper}>
-      <style>
-        {`
-          @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
-          
-          .back-link:hover { color: #6366f1 !important; transform: translateX(-4px); }
-          .feature-badge {
-            background: #f1f5f9;
-            padding: 8px 12px;
-            border-radius: 12px;
-            font-size: 13px;
-            font-weight: 600;
-            color: #475569;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-          }
-          .contact-btn:hover { background: #1fb355 !important; transform: translateY(-2px); box-shadow: 0 10px 15px -3px rgba(37, 211, 102, 0.3); }
-          .contact-btn:active { transform: translateY(0); }
-        `}
-      </style>
-
-      {/* Navigation Header */}
       <div style={topNav}>
-        <button onClick={() => navigate(-1)} className="back-link" style={backBtn}>
+        <button onClick={() => navigate(-1)} style={backBtn}>
           ← Back to Marketplace
         </button>
       </div>
 
       <div style={contentGrid}>
-        {/* LEFT COLUMN: IMAGE GALLERY */}
+        {/* IMAGE */}
         <div style={imageSection}>
-          <div style={mainImageContainer}>
-            <img
-              src={car.images?.[0]?.image || "https://via.placeholder.com/600x400?text=No+Image"}
-              alt={car.title}
-              style={mainImageStyle}
-            />
-            <div style={priceTag}>₹{car.price.toLocaleString('en-IN')}</div>
-          </div>
-          
-          {/* Thumbnails if available */}
-          {car.images?.length > 1 && (
-            <div style={thumbnailRow}>
-              {car.images.map((img, index) => (
-                <img key={index} src={img.image} style={thumbStyle} alt="thumb" />
-              ))}
-            </div>
-          )}
+          <img
+            src={car.images?.[0]?.image || "https://via.placeholder.com/600"}
+            alt={car.title}
+            style={mainImageStyle}
+          />
         </div>
 
-        {/* RIGHT COLUMN: DETAILS */}
+        {/* DETAILS */}
         <div style={detailsSection}>
-          <div style={{ marginBottom: "20px" }}>
-            <span style={brandLabel}>{car.brand}</span>
-            <h1 style={titleStyle}>{car.title}</h1>
-            <p style={locationStyle}>📍 {car.location}</p>
-          </div>
+          <h1>{car.title}</h1>
+          <p>📍 {car.location}</p>
+          <h2>₹{car.price}</h2>
 
-          <div style={statsGrid}>
-            <div className="feature-badge">⛽ {car.fuel_type}</div>
-            <div className="feature-badge">⚙️ Manual/Auto</div>
-            <div className="feature-badge">🛣️ {car.kms_driven || "0"} KM</div>
-          </div>
+          <p>{car.description}</p>
 
-          <div style={descriptionBox}>
-            <h3 style={sectionTitle}>Description</h3>
-            <p style={descText}>{car.description || "No description provided for this vehicle."}</p>
-          </div>
-
-          {/* SELLER CARD */}
+          {/* SELLER */}
           <div style={sellerCard}>
-            <div style={{ display: "flex", alignItems: "center", gap: "12px", marginBottom: "15px" }}>
-              <div style={avatar}>{car.seller?.name?.charAt(0) || "S"}</div>
-              <div>
-                <p style={sellerName}>{car.seller?.name || "Verified Seller"}</p>
-                <p style={sellerEmail}>{car.seller?.email}</p>
-              </div>
-            </div>
-            
-            <button onClick={handleWhatsAppContact} className="contact-btn" style={whatsappBtn}>
-              <span style={{ fontSize: "20px" }}>💬</span> 
+            <p><b>{car.seller?.name}</b></p>
+            <p>{car.seller?.email}</p>
+
+            {/* 🔥 CHAT BUTTON */}
+            <button onClick={handleChat} style={chatBtnStyle}>
+              {messageSent ? "Message Sent ✅" : "Is this still available?"}
+            </button>
+
+            {/* WHATSAPP */}
+            <button onClick={handleWhatsAppContact} style={whatsappBtn}>
               Contact on WhatsApp
             </button>
           </div>
@@ -133,180 +136,69 @@ function BuyCarDetails() {
   );
 }
 
-// 🎨 STYLES
+export default BuyCarDetails;
+
+
+
+// ================= STYLES =================
+
 const pageWrapper = {
-  maxWidth: "1200px",
-  margin: "0 auto",
+  maxWidth: "1100px",
+  margin: "auto",
   padding: "20px",
-  fontFamily: "'Plus Jakarta Sans', sans-serif",
-  color: "#1e293b",
 };
 
 const topNav = {
-  padding: "10px 0 30px 0",
+  marginBottom: "20px",
 };
 
 const backBtn = {
-  background: "none",
   border: "none",
-  color: "#64748b",
-  fontWeight: "600",
+  background: "none",
   cursor: "pointer",
-  transition: "all 0.2s",
-  display: "flex",
-  alignItems: "center",
+  fontWeight: "bold",
 };
 
 const contentGrid = {
   display: "grid",
-  gridTemplateColumns: "1.2fr 0.8fr",
-  gap: "40px",
-  alignItems: "start",
+  gridTemplateColumns: "1fr 1fr",
+  gap: "30px",
 };
 
-const imageSection = {
-  position: "sticky",
-  top: "20px",
-};
-
-const mainImageContainer = {
-  position: "relative",
-  borderRadius: "24px",
-  overflow: "hidden",
-  boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)",
-};
+const imageSection = {};
 
 const mainImageStyle = {
   width: "100%",
-  height: "500px",
-  objectFit: "cover",
-  display: "block",
+  borderRadius: "10px",
 };
 
-const priceTag = {
-  position: "absolute",
-  bottom: "20px",
-  left: "20px",
-  background: "#fff",
-  padding: "10px 20px",
-  borderRadius: "14px",
-  fontWeight: "800",
-  fontSize: "24px",
-  color: "#059669",
-  boxShadow: "0 10px 15px rgba(0,0,0,0.1)",
-};
-
-const thumbnailRow = {
-  display: "flex",
-  gap: "10px",
-  marginTop: "15px",
-};
-
-const thumbStyle = {
-  width: "80px",
-  height: "60px",
-  borderRadius: "8px",
-  objectFit: "cover",
-  cursor: "pointer",
-  border: "2px solid transparent",
-};
-
-const detailsSection = {
-  display: "flex",
-  flexDirection: "column",
-};
-
-const brandLabel = {
-  textTransform: "uppercase",
-  letterSpacing: "1px",
-  fontSize: "12px",
-  fontWeight: "800",
-  color: "#6366f1",
-};
-
-const titleStyle = {
-  fontSize: "36px",
-  fontWeight: "800",
-  margin: "5px 0",
-  lineHeight: "1.1",
-};
-
-const locationStyle = {
-  color: "#64748b",
-  fontSize: "14px",
-  margin: 0,
-};
-
-const statsGrid = {
-  display: "flex",
-  gap: "10px",
-  margin: "25px 0",
-};
-
-const descriptionBox = {
-  borderTop: "1px solid #e2e8f0",
-  paddingTop: "20px",
-  marginBottom: "30px",
-};
-
-const sectionTitle = {
-  fontSize: "18px",
-  fontWeight: "700",
-  marginBottom: "10px",
-};
-
-const descText = {
-  lineHeight: "1.6",
-  color: "#475569",
-};
+const detailsSection = {};
 
 const sellerCard = {
-  background: "#f8fafc",
-  padding: "25px",
-  borderRadius: "24px",
-  border: "1px solid #e2e8f0",
+  marginTop: "20px",
+  padding: "15px",
+  border: "1px solid #ddd",
+  borderRadius: "10px",
 };
 
-const avatar = {
-  width: "50px",
-  height: "50px",
-  background: "linear-gradient(135deg, #6366f1, #4f46e5)",
-  borderRadius: "50%",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
+const chatBtnStyle = {
+  width: "100%",
+  padding: "12px",
+  background: "#4CAF50",
   color: "#fff",
-  fontWeight: "700",
-  fontSize: "20px",
-};
-
-const sellerName = {
-  margin: 0,
-  fontWeight: "700",
-  fontSize: "16px",
-};
-
-const sellerEmail = {
-  margin: 0,
-  fontSize: "13px",
-  color: "#64748b",
+  border: "none",
+  borderRadius: "8px",
+  marginTop: "10px",
+  cursor: "pointer",
 };
 
 const whatsappBtn = {
   width: "100%",
-  padding: "16px",
+  padding: "12px",
   background: "#25D366",
   color: "#fff",
   border: "none",
-  borderRadius: "16px",
-  fontSize: "16px",
-  fontWeight: "700",
+  borderRadius: "8px",
+  marginTop: "10px",
   cursor: "pointer",
-  display: "flex",
-  alignItems: "center",
-  justifyContent: "center",
-  gap: "10px",
-  transition: "all 0.3s",
 };
-
-export default BuyCarDetails;
