@@ -11,23 +11,27 @@ function ResetPassword() {
 
   const handleReset = async () => {
     try {
-      await API.post("reset-password/", { email, password });
+      // 🔥 FIXED ENDPOINT
+      await API.post("auth/reset-password/", { email, password });
+
       alert("Password reset successful 🔥");
       navigate("/login");
-    } catch {
-      alert("Error ❌");
+    } catch (err) {
+      console.log(err);
+
+      if (err.response?.status === 400) {
+        alert(err.response.data?.error || "Invalid request ❌");
+      } else {
+        alert("Error ❌");
+      }
     }
   };
 
-  // --- Variety Animations: Rotating Wheel & Success Pulse ---
+  // --- Animations (UNCHANGED) ---
   const resetAnimations = `
     @keyframes spin-wheel {
       from { transform: rotate(0deg); }
       to { transform: rotate(360deg); }
-    }
-    @keyframes bar-fill {
-      from { width: 0%; }
-      to { width: 100%; }
     }
     .rotating-rim {
       position: absolute;
@@ -64,7 +68,6 @@ function ResetPassword() {
     }}>
       <style>{resetAnimations}</style>
 
-      {/* 🎡 Background Decorative Wheel */}
       <div className="rotating-rim">⚙️</div>
 
       <div style={{
@@ -80,26 +83,26 @@ function ResetPassword() {
         zIndex: 5
       }}>
         <div style={{ fontSize: "50px", marginBottom: "15px" }}>🔧</div>
-        
+
         <h2 style={{
           fontSize: "30px",
           fontWeight: "800",
           color: "#ffffff",
-          marginBottom: "10px",
-          letterSpacing: "-1px"
+          marginBottom: "10px"
         }}>
           New <span style={{ color: "#00d2ff" }}>Configuration</span>
         </h2>
-        
+
         <p style={{ color: "#8b949e", fontSize: "14px", marginBottom: "35px" }}>
           Re-securing access for:<br/>
           <span style={{ color: "#fff" }}>{email}</span>
         </p>
 
         <div style={{ textAlign: "left" }}>
-          <label style={{ color: "#00d2ff", fontSize: "11px", fontWeight: "bold", marginLeft: "5px" }}>
+          <label style={{ color: "#00d2ff", fontSize: "11px", fontWeight: "bold" }}>
             SET NEW MASTER PASSWORD
           </label>
+
           <input
             type="password"
             placeholder="••••••••"
@@ -114,59 +117,30 @@ function ResetPassword() {
               borderRadius: "12px",
               color: "#ffffff",
               outline: "none",
-              fontSize: "18px",
-              boxSizing: "border-box"
+              fontSize: "18px"
             }}
           />
-          {/* 🔋 Password Progress Bar UI */}
-          <div className="password-strength" style={{ 
-            width: password.length > 0 ? `${Math.min(password.length * 10, 100)}%` : '0%' 
+
+          <div className="password-strength" style={{
+            width: password.length > 0 ? `${Math.min(password.length * 10, 100)}%` : "0%"
           }}></div>
         </div>
 
-        <button 
-          onClick={handleReset}
-          style={{
-            width: "100%",
-            padding: "16px",
-            marginTop: "35px",
-            background: "linear-gradient(135deg, #00d2ff 0%, #3a47ff 100%)",
-            color: "white",
-            border: "none",
-            borderRadius: "14px",
-            fontWeight: "800",
-            fontSize: "16px",
-            cursor: "pointer",
-            boxShadow: "0 10px 25px rgba(0, 210, 255, 0.3)",
-            textTransform: "uppercase",
-            letterSpacing: "1px"
-          }}
-        >
+        <button onClick={handleReset} style={{
+          width: "100%",
+          padding: "16px",
+          marginTop: "35px",
+          background: "linear-gradient(135deg, #00d2ff 0%, #3a47ff 100%)",
+          color: "white",
+          border: "none",
+          borderRadius: "14px",
+          fontWeight: "800",
+          fontSize: "16px",
+          cursor: "pointer"
+        }}>
           UPDATE SYSTEM 🔓
         </button>
-
-        <div style={{ 
-          marginTop: "20px", 
-          display: "flex", 
-          justifyContent: "center", 
-          gap: "10px", 
-          opacity: 0.5 
-        }}>
-          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#00d2ff" }}></div>
-          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#00d2ff" }}></div>
-          <div style={{ width: "8px", height: "8px", borderRadius: "50%", background: "#00d2ff" }}></div>
-        </div>
       </div>
-
-      {/* 🛣️ Animated Road Stripes */}
-      <div style={{
-        position: "absolute",
-        top: "0",
-        left: "5%",
-        width: "1px",
-        height: "100%",
-        background: "linear-gradient(to bottom, transparent, rgba(0,210,255,0.2), transparent)"
-      }}></div>
     </div>
   );
 }

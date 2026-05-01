@@ -4,9 +4,10 @@ import API from "../../services/api";
 
 function Checkout() {
   const [cart, setCart] = useState([]);
-  const [baseTotal, setBaseTotal] = useState(0); // Cart value without extra charges
+  const [baseTotal, setBaseTotal] = useState(0); 
   const [loading, setLoading] = useState(false);
-  const [paymentMethod, setPaymentMethod] = useState("online"); // 'online' or 'cod'
+  const [paymentMethod, setPaymentMethod] = useState("online");
+  const [kycError, setKycError] = useState(false); // 🔥 NEW STATE FOR MODAL
 
   const [form, setForm] = useState({
     name: "",
@@ -37,11 +38,7 @@ function Checkout() {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
-  // ======================
-  // 🚀 MAIN ORDER HANDLER
-  // ======================
   const handlePlaceOrder = async () => {
-    // Validation
     if (!form.name || !form.phone || !form.address || !form.city || !form.pincode) {
       alert("⚠️ Please fill all delivery details");
       return;
@@ -61,7 +58,6 @@ function Checkout() {
     }
   };
 
-  // 💳 RAZORPAY LOGIC
   const handleRazorpayPayment = async () => {
     try {
       if (!window.Razorpay) {
@@ -70,7 +66,7 @@ function Checkout() {
         return;
       }
 
-      const res = await createOrder(); // Create order in backend
+      const res = await createOrder(); 
 
       const options = {
         key: res.data.key,
@@ -95,36 +91,66 @@ function Checkout() {
     }
   };
 
-  // 💵 COD LOGIC
   const handleCODPayment = async () => {
     try {
-      // For COD, we send a special payment_id or flag like "COD"
       await submitCheckoutToBackend("CASH_ON_DELIVERY");
     } catch (err) {
-      alert("❌ Failed to place COD order");
+      // Error is handled inside submitCheckoutToBackend
     } finally {
       setLoading(false);
     }
   };
 
-  // 📝 SHARED SUBMIT FUNCTION
+  // 📝 SHARED SUBMIT FUNCTION (UPDATED WITH KYC CHECK)
   const submitCheckoutToBackend = async (payId) => {
     try {
       await API.post("cart/checkout/", {
         ...form,
         payment_id: payId,
-        payment_method: paymentMethod, // Sending 'cod' or 'online'
+        payment_method: paymentMethod,
         total_price: finalTotal,
       });
       alert("🎉 Order placed successfully!");
       window.location.href = "/";
     } catch (err) {
+      // 🔥 KYC CHECK LOGIC
+      if (err.response?.status === 403) {
+        setKycError(true);
+        return;
+      }
       alert("❌ Order saving failed");
     }
   };
 
   return (
     <div style={styles.container}>
+      {/* 🔥 PRO UI KYC POPUP MODAL */}
+      {kycError && (
+        <div style={styles.modalOverlay}>
+          <div style={styles.modalCard}>
+            <div style={{ fontSize: "50px", marginBottom: "10px" }}>⚠️</div>
+            <h3 style={{ margin: "0 0 10px 0", color: "#1e293b" }}>KYC Verification Required</h3>
+            <p style={{ color: "#64748b", marginBottom: "20px" }}>
+              To ensure safety and compliance, you must complete your KYC verification before placing this order.
+            </p>
+
+            <button 
+              onClick={() => window.location.href = "/kyc"} 
+              style={{ ...styles.btn, marginBottom: "10px" }}
+            >
+              Complete KYC Now
+            </button>
+
+            <button 
+              onClick={() => setKycError(false)} 
+              style={{ ...styles.btn, background: "#f1f5f9", color: "#475569", boxShadow: "none" }}
+            >
+              Maybe Later
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* LEFT: CART SUMMARY */}
       <div style={styles.left}>
         <h2 style={{ marginBottom: "20px" }}>🧾 Order Summary</h2>
@@ -192,7 +218,6 @@ function Checkout() {
           </label>
         </div>
 
-        {/* PRICE BREAKDOWN */}
         <div style={styles.priceSummary}>
           <div style={styles.priceRow}>
             <span>Cart Total:</span>
@@ -217,11 +242,9 @@ function Checkout() {
   );
 }
 
-export default Checkout;
-
-// ================= MODERN STYLES =================
 const styles = {
-  container: { display: "flex", gap: "40px", padding: "40px 10%;", background: "#f1f5f9", minHeight: "100vh", fontFamily: "'Inter', sans-serif" },
+  // Existing Styles...
+  container: { display: "flex", gap: "40px", padding: "40px 10%", background: "#f1f5f9", minHeight: "100vh", fontFamily: "'Inter', sans-serif" },
   left: { flex: 1.5 },
   right: { flex: 1, background: "#fff", padding: "25px", borderRadius: "16px", boxShadow: "0 10px 25px rgba(0,0,0,0.05)", height: "fit-content" },
   sectionTitle: { fontSize: "18px", marginBottom: "15px", borderLeft: "4px solid #10b981", paddingLeft: "10px" },
@@ -237,5 +260,18 @@ const styles = {
   payOption: { display: "flex", alignItems: "center", padding: "12px", border: "2px solid #ddd", borderRadius: "10px", cursor: "pointer", transition: "0.2s" },
   priceSummary: { background: "#f8fafc", padding: "15px", borderRadius: "10px", marginBottom: "20px" },
   priceRow: { display: "flex", justifyContent: "space-between", marginBottom: "5px", fontSize: "14px" },
-  btn: { width: "100%", padding: "15px", background: "#10b981", color: "#fff", border: "none", borderRadius: "10px", fontWeight: "bold", fontSize: "16px", cursor: "pointer", transition: "0.3s", boxShadow: "0 4px 12px rgba(16, 185, 129, 0.2)" }
+  btn: { width: "100%", padding: "15px", background: "#10b981", color: "#fff", border: "none", borderRadius: "10px", fontWeight: "bold", fontSize: "16px", cursor: "pointer", transition: "0.3s", boxShadow: "0 4px 12px rgba(16, 185, 129, 0.2)" },
+
+  // 🔥 MODAL STYLES
+  modalOverlay: {
+    position: "fixed", top: 0, left: 0, width: "100%", height: "100%",
+    background: "rgba(15, 23, 42, 0.7)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 1000,
+    backdropFilter: "blur(4px)"
+  },
+  modalCard: {
+    background: "#fff", padding: "40px", borderRadius: "24px", textAlign: "center",
+    maxWidth: "400px", width: "90%", boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.1)"
+  }
 };
+
+export default Checkout;

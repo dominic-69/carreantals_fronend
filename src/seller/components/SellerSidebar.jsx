@@ -10,6 +10,8 @@ const SellerSidebar = () => {
     { name: "Dashboard", path: "/seller" },
     { name: "Add Car", path: "/seller/add-car" },
     { name: "My Cars", path: "/seller/my-cars" },
+      { name: "Seller Bookings", path: "/seller/bookings" },
+
 
     // 🛒 ACCESSORIES
     { name: "Add Accessory", path: "/seller/add-accessory" },

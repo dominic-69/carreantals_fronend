@@ -1,10 +1,11 @@
 import { useEffect, useState, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom"; // 🔥 Added useNavigate
 import API from "../../services/api";
 
 function Messages() {
   const query = new URLSearchParams(useLocation().search);
   const chatIdFromURL = query.get("chat_id");
+  const navigate = useNavigate(); // 🔥 Hook for navigation
 
   const [chats, setChats] = useState([]);
   const [activeChat, setActiveChat] = useState(chatIdFromURL);
@@ -67,6 +68,10 @@ function Messages() {
       {/* SIDEBAR */}
       <div style={styles.sidebar}>
         <div style={styles.sidebarHeader}>
+          {/* 🔥 BACK TO HOME BUTTON */}
+          <div onClick={() => navigate("/")} style={styles.backBtn}>
+            ← Back to Home
+          </div>
           <h2 style={styles.title}>Chats</h2>
         </div>
         <div style={styles.chatList}>
@@ -101,6 +106,7 @@ function Messages() {
                 <div style={styles.headerName}>
                   {chats.find(c => c.id.toString() === activeChat)?.other_user_name}
                 </div>
+                <div style={styles.onlineStatus}>Online</div>
               </div>
             </div>
 
@@ -112,23 +118,19 @@ function Messages() {
                     key={i}
                     style={{
                       display: "flex",
-                      flexDirection: "column",
-                      alignItems: isMe ? "flex-end" : "flex-start",
-                      marginBottom: "12px",
+                      justifyContent: isMe ? "flex-end" : "flex-start",
+                      marginBottom: "4px",
+                      width: "100%"
                     }}
                   >
-                    {/* SENDER NAME */}
-                    <span style={styles.senderLabel}>
-                      {isMe ? "You" : msg.sender}
-                    </span>
-                    
                     <div
                       style={{
                         ...styles.bubble,
-                        background: isMe ? "#d9fdd3" : "#fff",
-                        borderRadius: isMe ? "12px 0px 12px 12px" : "0px 12px 12px 12px",
+                        background: isMe ? "#d9fdd3" : "#ffffff",
+                        borderRadius: isMe ? "8px 0px 8px 8px" : "0px 8px 8px 8px",
                       }}
                     >
+                      {!isMe && <span style={styles.senderLabel}>{msg.sender}</span>}
                       <div style={styles.messageText}>{msg.text}</div>
                     </div>
                   </div>
@@ -151,7 +153,10 @@ function Messages() {
             </div>
           </>
         ) : (
-          <div style={styles.empty}>Select a chat to see messages</div>
+          <div style={styles.empty}>
+             <div style={{fontSize: '48px', marginBottom: '10px'}}>💬</div>
+             <h3>Select a conversation to start chatting</h3>
+          </div>
         )}
       </div>
     </div>
@@ -161,27 +166,36 @@ function Messages() {
 export default Messages;
 
 const styles = {
-  container: { display: "flex", height: "100vh", background: "#f0f2f5", fontFamily: "Segoe UI, Tahoma, sans-serif" },
+  container: { display: "flex", height: "100vh", background: "#f0f2f5", fontFamily: "Segoe UI, Tahoma, sans-serif", overflow: "hidden" },
   sidebar: { width: "350px", background: "#fff", borderRight: "1px solid #ddd", display: "flex", flexDirection: "column" },
-  sidebarHeader: { padding: "20px", borderBottom: "1px solid #eee" },
-  title: { margin: 0, fontSize: "20px" },
+  sidebarHeader: { padding: "15px 20px", borderBottom: "1px solid #eee" },
+  backBtn: { fontSize: "13px", color: "#6366f1", fontWeight: "600", cursor: "pointer", marginBottom: "8px" },
+  title: { margin: 0, fontSize: "22px", fontWeight: "700" },
   chatList: { flex: 1, overflowY: "auto" },
   chatItem: { display: "flex", padding: "15px", cursor: "pointer", borderBottom: "1px solid #f9f9f9", alignItems: "center" },
-  avatar: { width: "45px", height: "45px", borderRadius: "50%", background: "#00a884", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", marginRight: "12px" },
-  chatInfo: { flex: 1 },
+  avatar: { width: "45px", height: "45px", borderRadius: "50%", background: "#53bdeb", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: "bold", marginRight: "12px", fontSize: "18px" },
+  chatInfo: { flex: 1, overflow: "hidden" },
   chatName: { fontWeight: "600", fontSize: "16px" },
-  lastMsg: { fontSize: "13px", color: "#666", margin: "4px 0 0 0" },
-  chatArea: { flex: 1, display: "flex", flexDirection: "column", background: "#e5ddd5" },
-  header: { padding: "10px 20px", background: "#f0f2f5", display: "flex", alignItems: "center", borderBottom: "1px solid #ddd" },
-  headerName: { fontWeight: "600" },
-  avatarSmall: { width: "35px", height: "35px", borderRadius: "50%", background: "#00a884", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" },
-  chatBox: { flex: 1, padding: "20px", overflowY: "auto" },
-  senderLabel: { fontSize: "11px", color: "#666", marginBottom: "2px", marginLeft: "4px", marginRight: "4px", fontWeight: "500" },
-  bubble: { padding: "10px 15px", maxWidth: "70%", boxShadow: "0 1px 1px rgba(0,0,0,0.1)" },
-  messageText: { fontSize: "14.5px", color: "#111" },
+  lastMsg: { fontSize: "13px", color: "#666", margin: "4px 0 0 0", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" },
+  chatArea: { 
+    flex: 1, 
+    display: "flex", 
+    flexDirection: "column", 
+    background: "#efeae2", 
+    backgroundImage: "url('https://user-images.githubusercontent.com/15075759/28719144-86dc0f70-73b1-11e7-911d-60d70fcded21.png')",
+    backgroundRepeat: "repeat" 
+  },
+  header: { padding: "10px 20px", background: "#f0f2f5", display: "flex", alignItems: "center", borderBottom: "1px solid #ddd", zIndex: 10 },
+  headerName: { fontWeight: "600", fontSize: "16px" },
+  onlineStatus: { fontSize: "12px", color: "#667781" },
+  avatarSmall: { width: "40px", height: "40px", borderRadius: "50%", background: "#53bdeb", color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "14px" },
+  chatBox: { flex: 1, padding: "20px 7%", overflowY: "auto", display: "flex", flexDirection: "column" },
+  senderLabel: { fontSize: "12px", color: "#53bdeb", marginBottom: "2px", fontWeight: "600" },
+  bubble: { padding: "8px 12px", maxWidth: "65%", boxShadow: "0 1px 0.5px rgba(0,0,0,0.13)", display: "flex", flexDirection: "column" },
+  messageText: { fontSize: "14.5px", color: "#111", lineHeight: "1.4", wordBreak: "break-word" },
   inputArea: { padding: "10px 20px", background: "#f0f2f5" },
-  inputContainer: { display: "flex", background: "#fff", borderRadius: "25px", padding: "5px 15px", alignItems: "center" },
+  inputContainer: { display: "flex", background: "#fff", borderRadius: "8px", padding: "5px 15px", alignItems: "center" },
   input: { flex: 1, border: "none", outline: "none", padding: "10px", fontSize: "15px" },
-  sendBtn: { border: "none", background: "none", fontSize: "18px", cursor: "pointer", color: "#00a884" },
-  empty: { margin: "auto", color: "#888" },
+  sendBtn: { border: "none", background: "none", fontSize: "20px", cursor: "pointer", color: "#54656f" },
+  empty: { margin: "auto", textAlign: "center", color: "#888", background: "rgba(255,255,255,0.9)", padding: "40px", borderRadius: "24px", boxShadow: "0 4px 12px rgba(0,0,0,0.05)" },
 };

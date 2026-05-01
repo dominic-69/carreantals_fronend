@@ -52,14 +52,15 @@ const Accessories = () => {
   const colors = {
     primary: "#6366f1",
     accent: "#4f46e5",
-    text: "#0f172a",
+    text: "#1e293b",
     muted: "#64748b",
-    bg: "#f8fafc",
-    card: "#ffffff"
+    bg: "#f1f5f9",
+    card: "#ffffff",
+    border: "#e2e8f0"
   };
 
   return (
-    <div style={{ padding: "60px 5%", background: colors.bg, minHeight: "100vh", fontFamily: "'Inter', sans-serif" }}>
+    <div style={{ background: colors.bg, minHeight: "100vh", fontFamily: "'Inter', sans-serif" }}>
       
       {/* ✅ Toast Notification Container */}
       <ToastContainer />
@@ -69,184 +70,206 @@ const Accessories = () => {
           @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap');
           
           .accessory-card {
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
             cursor: pointer;
-            border: 1px solid rgba(0,0,0,0.05) !important;
           }
           .accessory-card:hover {
-            transform: translateY(-12px);
-            box-shadow: 0 30px 60px -12px rgba(50, 50, 93, 0.15), 0 18px 36px -18px rgba(0, 0, 0, 0.2) !important;
+            transform: translateY(-8px);
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
           }
-          .img-zoom {
-            transition: transform 0.8s cubic-bezier(0.2, 0.8, 0.2, 1);
+          .nav-btn {
+            transition: all 0.2s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            padding: 8px 16px;
+            border-radius: 8px;
+            color: ${colors.muted};
+            font-weight: 600;
           }
-          .accessory-card:hover .img-zoom {
-            transform: scale(1.15);
+          .nav-btn:hover {
+            background: #fff;
+            color: ${colors.primary};
           }
-          .btn-animate {
-            transition: all 0.3s ease;
+          .btn-primary {
+            transition: all 0.2s ease;
           }
-          .btn-animate:hover {
-            filter: brightness(1.1);
+          .btn-primary:hover {
+            background: ${colors.accent} !important;
             transform: scale(1.02);
-            box-shadow: 0 8px 20px rgba(99, 102, 241, 0.3);
           }
-          .wishlist-btn {
-             transition: all 0.3s ease;
+          .btn-secondary {
+            transition: all 0.2s ease;
+            background: #f1f5f9;
+            color: #1e293b;
+          }
+          .btn-secondary:hover {
+            background: #e2e8f0;
           }
           .wishlist-btn:hover {
-            background: #fff !important;
-            transform: scale(1.1);
-            color: #ff4757 !important;
+            background: #fee2e2 !important;
+            color: #ef4444 !important;
           }
         `}
       </style>
 
-      {/* Header Section */}
-      <div style={{ marginBottom: "50px", textAlign: 'center' }}>
-        <h1 style={{ 
-          margin: 0, 
-          fontSize: "42px", 
-          fontWeight: "800", 
-          color: colors.text,
-          fontFamily: "'Plus Jakarta Sans', sans-serif",
-          letterSpacing: "-1px"
-        }}>
-          Luxury <span style={{ color: colors.primary }}>Gear</span>
-        </h1>
-        <p style={{ marginTop: "10px", color: colors.muted, fontSize: "18px" }}>
-          Enhance your driving experience with curated premium parts.
-        </p>
+      {/* Standard Navigation Bar */}
+      <div style={{ 
+        background: "#fff", 
+        padding: "15px 5%", 
+        display: "flex", 
+        justifyContent: "space-between", 
+        alignItems: "center",
+        borderBottom: `1px solid ${colors.border}`,
+        position: 'sticky',
+        top: 0,
+        zIndex: 10
+      }}>
+        <div onClick={() => navigate("/")} className="nav-btn">
+          <span>←</span> Back to Home
+        </div>
+        <div style={{ fontWeight: '800', fontSize: '20px', color: colors.text }}>
+          Auto<span style={{ color: colors.primary }}>Drive</span> Shop
+        </div>
+        <div style={{ display: 'flex', gap: '15px' }}>
+          <div onClick={() => navigate("/cart")} className="nav-btn">🛒 Cart</div>
+        </div>
       </div>
 
-      {/* Product Grid */}
-      <div style={{ 
-        display: "grid", 
-        gridTemplateColumns: "repeat(auto-fill, minmax(300px, 1fr))", 
-        gap: "40px" 
-      }}>
-        {items.map((item) => (
-          <div 
-            key={item.id} 
-            className="accessory-card"
-            onClick={() => navigate(`/accessory/${item.id}`)}
-            style={{
-              background: colors.card,
-              borderRadius: "24px",
-              overflow: "hidden",
-              display: "flex",
-              flexDirection: "column",
-              position: "relative"
-            }}
-          >
+      <div style={{ padding: "40px 5%" }}>
+        {/* Page Title */}
+        <div style={{ marginBottom: "40px" }}>
+          <h1 style={{ 
+            margin: 0, 
+            fontSize: "32px", 
+            fontWeight: "800", 
+            color: colors.text,
+            fontFamily: "'Plus Jakarta Sans', sans-serif"
+          }}>
+            Premium Accessories
+          </h1>
+          <p style={{ color: colors.muted, marginTop: '5px' }}>Discover the best gear for your vehicle.</p>
+        </div>
 
-            {/* Image Section */}
-            <div style={{ position: "relative", height: "260px", width: "100%", overflow: "hidden" }}>
-              {item.images && item.images.length > 0 ? (
-                <img
-                  className="img-zoom"
-                  src={item.images[0].image}
-                  alt={item.name}
-                  style={{ width: "100%", height: "100%", objectFit: "cover" }}
-                />
-              ) : (
-                <div style={{ height: "100%", background: "#f1f5f9", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "40px" }}>⚙️</div>
-              )}
-              
-              {/* Floating Badge */}
-              <div style={{ 
-                position: 'absolute', 
-                top: '15px', 
-                left: '15px', 
-                background: 'rgba(15, 23, 42, 0.8)', 
-                color: '#fff', 
-                padding: '5px 12px', 
-                borderRadius: '20px', 
-                fontSize: '10px', 
-                fontWeight: '700', 
-                textTransform: 'uppercase',
-                backdropFilter: 'blur(4px)'
-              }}>
-                Premium Choice
-              </div>
-
-              <button
-                className="wishlist-btn"
-                onClick={(e) => handleWishlist(item.id, e)}
-                style={{
-                  position: "absolute",
-                  top: "15px",
-                  right: "15px",
-                  width: "42px",
-                  height: "42px",
-                  borderRadius: "50%",
-                  border: "none",
-                  background: "rgba(255, 255, 255, 0.85)",
-                  color: "#64748b",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  cursor: "pointer",
-                  zIndex: 2,
-                  backdropFilter: "blur(8px)",
-                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-                }}
+        {/* Product Grid */}
+        <div style={{ 
+          display: "grid", 
+          gridTemplateColumns: "repeat(auto-fill, minmax(280px, 1fr))", 
+          gap: "30px" 
+        }}>
+          {items.map((item) => (
+            <div 
+              key={item.id} 
+              className="accessory-card"
+              style={{
+                background: colors.card,
+                borderRadius: "16px",
+                overflow: "hidden",
+                border: `1px solid ${colors.border}`,
+                display: "flex",
+                flexDirection: "column",
+              }}
+            >
+              {/* Image Section */}
+              <div 
+                style={{ position: "relative", height: "240px", width: "100%", overflow: "hidden", background: '#f8fafc' }}
+                onClick={() => navigate(`/accessory/${item.id}`)}
               >
-                <span style={{ fontSize: '18px' }}>❤️</span>
-              </button>
-            </div>
-
-            {/* Product Details Section */}
-            <div style={{ padding: "25px", flex: 1, display: "flex", flexDirection: "column" }}>
-              <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span style={{ fontSize: "12px", fontWeight: "700", color: colors.primary, textTransform: "uppercase", letterSpacing: "1.5px" }}>
-                  {item.brand}
-                </span>
-              </div>
-
-              <h3 style={{ 
-                margin: "10px 0", 
-                fontSize: "22px", 
-                fontWeight: "700", 
-                color: colors.text,
-                fontFamily: "'Plus Jakarta Sans', sans-serif"
-              }}>
-                {item.name}
-              </h3>
-              
-              <div style={{ marginTop: "auto", display: 'flex', alignItems: 'center', justifyContent: 'space-between', paddingTop: "20px" }}>
-                <div>
-                  <span style={{ fontSize: '12px', color: colors.muted, display: 'block', marginBottom: '2px' }}>Starting at</span>
-                  <div style={{ fontSize: "28px", fontWeight: "800", color: colors.text }}>
-                    ₹{item.price.toLocaleString()}
-                  </div>
-                </div>
-
+                {item.images && item.images.length > 0 ? (
+                  <img
+                    src={item.images[0].image}
+                    alt={item.name}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                ) : (
+                  <div style={{ height: "100%", display: "flex", alignItems: "center", justifyContent: "center", fontSize: "40px" }}>⚙️</div>
+                )}
+                
                 <button
-                  className="btn-animate"
-                  onClick={(e) => handleAddToCart(item.id, e)}
+                  className="wishlist-btn"
+                  onClick={(e) => handleWishlist(item.id, e)}
                   style={{
-                    padding: "14px 24px",
+                    position: "absolute",
+                    top: "12px",
+                    right: "12px",
+                    width: "36px",
+                    height: "36px",
+                    borderRadius: "50%",
                     border: "none",
-                    background: colors.text, // Dark premium button
-                    color: "#fff",
-                    borderRadius: "16px",
-                    fontWeight: "700",
-                    fontSize: "14px",
-                    cursor: "pointer",
+                    background: "rgba(255, 255, 255, 0.9)",
+                    color: "#64748b",
                     display: "flex",
                     alignItems: "center",
-                    gap: "10px",
-                    boxShadow: "0 10px 20px rgba(15, 23, 42, 0.15)"
+                    justifyContent: "center",
+                    cursor: "pointer",
+                    boxShadow: '0 4px 6px -1px rgba(0,0,0,0.1)'
                   }}
                 >
-                  Add to Cart
+                  ❤️
                 </button>
               </div>
-            </div>
 
-          </div>
-        ))}
+              {/* Info Section */}
+              <div style={{ padding: "20px", flex: 1, display: "flex", flexDirection: "column" }}>
+                <span style={{ fontSize: "11px", fontWeight: "700", color: colors.primary, textTransform: "uppercase", letterSpacing: "1px" }}>
+                  {item.brand}
+                </span>
+
+                <h3 style={{ 
+                  margin: "8px 0", 
+                  fontSize: "18px", 
+                  fontWeight: "700", 
+                  color: colors.text,
+                }}>
+                  {item.name}
+                </h3>
+                
+                <div style={{ fontSize: "20px", fontWeight: "800", color: colors.text, marginBottom: '15px' }}>
+                  ₹{item.price.toLocaleString()}
+                </div>
+
+                <div style={{ marginTop: "auto", display: 'flex', gap: '10px' }}>
+                  {/* 🔥 VIEW DETAILS BUTTON */}
+                  <button
+                    className="btn-secondary"
+                    onClick={() => navigate(`/accessory/${item.id}`)}
+                    style={{
+                      flex: 1,
+                      padding: "10px",
+                      border: "none",
+                      borderRadius: "10px",
+                      fontWeight: "700",
+                      fontSize: "12px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    View Details
+                  </button>
+
+                  {/* ADD TO CART BUTTON */}
+                  <button
+                    className="btn-primary"
+                    onClick={(e) => handleAddToCart(item.id, e)}
+                    style={{
+                      flex: 1,
+                      padding: "10px",
+                      border: "none",
+                      background: colors.primary,
+                      color: "#fff",
+                      borderRadius: "10px",
+                      fontWeight: "700",
+                      fontSize: "12px",
+                      cursor: "pointer",
+                    }}
+                  >
+                    Add to Cart
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );

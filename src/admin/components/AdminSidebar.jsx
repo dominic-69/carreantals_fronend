@@ -13,9 +13,12 @@ const AdminSidebar = () => {
     { name: "KYC Requests", path: "/admin/kyc" },
     { name: "Support seller", path: "/admin/chat" },
     { name: "Accessories", path: "/admin/accessories" },
+    
 
     // 🔥 NEW MENU ITEM
-    { name: "Car Approvals", path: "/admin/car-approvals" }
+    { name: "Car Approvals", path: "/admin/car-approvals" },
+    { name: "Bookings", path: "/admin/bookings" }
+    
   ];
 
   const logout = () => {

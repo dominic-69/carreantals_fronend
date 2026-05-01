@@ -55,7 +55,7 @@ function Cart() {
         <header style={styles.header}>
           <div style={styles.logoBadge}>PLATINUM DRIVE</div>
           <h1 style={styles.title}>Your <span style={{color: '#3b82f6'}}>Garage</span></h1>
-          <p style={{color: '#64748b', marginTop: '5px'}}>{cart.length} Vehicles in your collection</p>
+          <p style={{color: '#64748b', marginTop: '5px'}}>{cart.length} Products</p>
         </header>
 
         {loading ? (
